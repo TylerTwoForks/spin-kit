@@ -1,4 +1,4 @@
-# spin-kit
+# SPIN Kit
 **S**andbox **P**rovisioning and **IN**spection Kit
 
 # Menu
