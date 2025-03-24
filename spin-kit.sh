@@ -2,7 +2,7 @@
 
 ##### CUSTOMIZE HERE ##################################
 sandbox_list=("" "" "") #add your sandbox aliases here.  These need to match the sandbox Alias in Production. 
-prod_alias="Prod" #set this to the alias of your production org
+prod_alias="Prod" #set this to the alias (or username) of your production org. Account connected needs to have refresh rights. 
 #######################################################
 
 
