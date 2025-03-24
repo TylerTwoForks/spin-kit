@@ -1,9 +1,14 @@
 #!/bin/bash
 
-## customize these values #############################
-sandbox_list=("update_me1" "update_me2" "update_me3")
-prod_alias="Prod"
+##### CUSTOMIZE HERE ##################################
+sandbox_list=("" "" "") #add your sandbox aliases here.  These need to match the sandbox Alias in Production. 
+prod_alias="Prod" #set this to the alias of your production org
 #######################################################
+
+
+########################################################
+####### Do not edit below this line ####################
+########################################################
 
 index=${#sandbox_list[@]}
 trap 'menu' ERR
@@ -17,13 +22,15 @@ enterChoice() {
 #calculates minimum width needed and adds a bit of padding
 calculateWidth() {
     max_length=0
+    echo "Calculating width... $max_length"
     for i in "${!sandbox_list[@]}"; do
         length=${#sandbox_list[$i]}
         if [ $length -gt $max_length ]; then
             max_length=$length
         fi
     done
-    width=$((max_length + 22))
+    echo "Calculating width... $max_length"
+    width=$((32 > max_length ? 32 : max_length + 22))
 }
 
 showMenu() {
