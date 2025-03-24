@@ -1,8 +1,10 @@
 # spin-kit
-Sandbox Provisioning and INspection Kit
+**S**andbox **P**rovisioning and **IN**spection Kit
 
 # Menu
-![image](https://github.com/user-attachments/assets/f8c59e50-be6e-4fad-8ee9-bc7a62d3012c)
+![image](https://github.com/user-attachments/assets/7f51037b-c385-4ca8-ac5f-f11467723bf1)
+
 
 # result of the `ls` command
-![image](https://github.com/user-attachments/assets/974c8b3e-f9a9-45c9-9520-6f1acc2a8c53)
+![image](https://github.com/user-attachments/assets/69a45daa-c8cc-48ab-9f8d-85fac6663355)
+
