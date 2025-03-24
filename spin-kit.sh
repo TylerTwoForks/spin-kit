@@ -26,7 +26,9 @@ calculateWidth() {
     width=$((max_length + 22))
 }
 
-menu() {
+showMenu() {
+    unset $choice
+    unset $sandbox_name
     calculateWidth
     echo "┌$(printf '─%.0s' $(seq 1 $width))┐"
     echo "│$(printf ' %.0s' $(seq 1 $((width / 2 - 5))))MAIN MENU$(printf ' %.0s' $(seq 1 $((width / 2 - 4))))│"
@@ -38,7 +40,7 @@ menu() {
     echo "│ $(printf ' %.0s' $(seq 1 $((width - 1))))│"
     echo "│ Utilities $(printf ' %.0s' $(seq 1 $((width - 11))))│"
     echo -e "│  ls:\tList Org Connections $(printf ' %.0s' $(seq 1 $((width - 28))))│"
-    echo -e "│  c:\tRefresh Custom Sandbox $(printf ' %.0s' $(seq 1 $((width - 30))))│"
+    echo -e "│  ref:\tRefresh Custom Sandbox $(printf ' %.0s' $(seq 1 $((width - 30))))│"
     echo -e "│  rc:\tReconnect to Sandbox $(printf ' %.0s' $(seq 1 $((width - 28))))│"
     echo -e "│  m:\tShow menu $(printf ' %.0s' $(seq 1 $((width - 17))))│"
     echo -e "│  x:\tExit $(printf ' %.0s' $(seq 1 $((width - 12))))│"
@@ -47,15 +49,8 @@ menu() {
     enterChoice
 }
 
-orgStatus() {
-    echo "Org Connections:"
-    sf org list
-    enterChoice
-}
-
 isValidChoice() {
     if [[ "$sandbox_name" == "" ]]; then
-        echo "${sandbox_name} is empty, please try again."
         unset $sandbox_name
         return 1
     elif [[ "$sandbox_name" == "exit" || "$sandbox_name" == "x" ]]; then
@@ -71,7 +66,7 @@ isValidChoice() {
 myApp() {
     unset $choice
     unset $sandbox_name
-    menu
+    showMenu
     while true; do
         # dynamic choices
         if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 0 ] && [ "$choice" -lt "$index" ]; then
@@ -83,26 +78,26 @@ myApp() {
         # static choices
         case $choice in
         "")
-            menu
+            myApp
             ;;
         ls)
-            orgStatus
-        
+            echo "Org Connections:"
+            sf org list #sf command
             ;;
         x | exit)
             exit
             ;;
         m)
-            menu
+            myApp
             ;;
-        c)
+        ref)
             echo
-            read -p "Enter Sandbox Name to Refresh: " sandbox_name
+            read -p "Enter Sandbox Name to Refresh (or "x" to return to menu): " sandbox_name
             if ! isValidChoice; then
                 echo "Invalid choice, please try again."
             else
                 echo "^c to return to menu or continue the login process in the browser"
-                sf org refresh sandbox --name $sandbox_name --target-org $prod_alias
+                sf org refresh sandbox --name $sandbox_name --target-org $prod_alias #sf command
                 
             fi
             ;;
@@ -113,7 +108,7 @@ myApp() {
                 echo "Invalid choice, please try again."
             else
                 echo "^c to return to menu or continue the login process in the browser"
-                sf org web login --instance-url https://test.salesforce.com --alias $sandbox_name
+                sf org web login --instance-url https://test.salesforce.com --alias $sandbox_name #sf command
                 
             fi
 
@@ -121,7 +116,6 @@ myApp() {
         *)
             echo "Invalid choice, please try again."
             ;;
-
         esac
         myApp
 
