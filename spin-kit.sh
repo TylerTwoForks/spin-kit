@@ -12,6 +12,8 @@ prod_alias="Prod" #set this to the alias (or username) of your production org. A
 
 index=${#sandbox_list[@]}
 trap 'menu' ERR
+show_menu=true
+
 
 enterChoice() {
     unset $choice
@@ -22,14 +24,12 @@ enterChoice() {
 #calculates minimum width needed and adds a bit of padding
 calculateWidth() {
     max_length=0
-    echo "Calculating width... $max_length"
     for i in "${!sandbox_list[@]}"; do
         length=${#sandbox_list[$i]}
         if [ $length -gt $max_length ]; then
             max_length=$length
         fi
     done
-    echo "Calculating width... $max_length"
     width=$((32 > max_length ? 32 : max_length + 22))
 }
 
@@ -49,11 +49,10 @@ showMenu() {
     echo -e "│  ls:\tList Org Connections $(printf ' %.0s' $(seq 1 $((width - 28))))│"
     echo -e "│  ref:\tRefresh Custom Sandbox $(printf ' %.0s' $(seq 1 $((width - 30))))│"
     echo -e "│  rc:\tReconnect to Sandbox $(printf ' %.0s' $(seq 1 $((width - 28))))│"
+    echo -e "│  st:\tSandbox Refresh Status $(printf ' %.0s' $(seq 1 $((width - 30))))│"
     echo -e "│  m:\tShow menu $(printf ' %.0s' $(seq 1 $((width - 17))))│"
     echo -e "│  x:\tExit $(printf ' %.0s' $(seq 1 $((width - 12))))│"
     echo -e "└$(printf '─%.0s' $(seq 1 $width))┘"
-
-    enterChoice
 }
 
 isValidChoice() {
@@ -70,16 +69,19 @@ isValidChoice() {
     fi
 }
 
+
 myApp() {
+    choice_made=false
     unset $choice
     unset $sandbox_name
-    showMenu
-    while true; do
+
+    enterChoice
+
+    while [ "$choice_made" == false ]; do
         # dynamic choices
         if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 0 ] && [ "$choice" -lt "$index" ]; then
             echo "Refreshing ${sandbox_list[$choice]}"
             sf org refresh sandbox --name ${sandbox_list[$choice]} --target-org $prod_alias
-            # continue
         fi
 
         # static choices
@@ -95,7 +97,10 @@ myApp() {
             exit
             ;;
         m)
-            myApp
+            showMenu
+            ;;
+        st)
+            sf data query --query "SELECT Id, SandboxName, Status, CopyProgress FROM SandboxProcess WHERE Status IN ('0', '2', '3', '4', '5') ORDER BY Status DESC" --target-org $prod_alias --use-tooling-api            
             ;;
         ref)
             echo
@@ -124,9 +129,9 @@ myApp() {
             echo "Invalid choice, please try again."
             ;;
         esac
-        myApp
-
+        choice_made=true
     done
+    myApp
 }
-
+showMenu
 myApp
