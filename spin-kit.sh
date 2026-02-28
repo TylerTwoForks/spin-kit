@@ -2,7 +2,7 @@
 
 ##### CUSTOMIZE HERE ##################################
 sandbox_list=("" "" "") #add your sandbox aliases here.  These need to match the sandbox Alias in Production. 
-prod_alias="Prod" #set this to the alias (or username) of your production org. Account connected needs to have refresh rights. 
+prod_alias="ProCrewzProd" #set this to the alias (or username) of your production org. Account connected needs to have refresh rights. 
 #######################################################
 
 
@@ -47,6 +47,7 @@ showMenu() {
     echo "│ $(printf ' %.0s' $(seq 1 $((width - 1))))│"
     echo "│ Utilities $(printf ' %.0s' $(seq 1 $((width - 11))))│"
     echo -e "│  ls:\tList Org Connections $(printf ' %.0s' $(seq 1 $((width - 28))))│"
+    echo -e "│  pr:\tConnec to Prod Org $(printf ' %.0s' $(seq 1 $((width - 26))))│"
     echo -e "│  ref:\tRefresh Custom Sandbox $(printf ' %.0s' $(seq 1 $((width - 30))))│"
     echo -e "│  rc:\tReconnect to Sandbox $(printf ' %.0s' $(seq 1 $((width - 28))))│"
     echo -e "│  st:\tSandbox Refresh Status $(printf ' %.0s' $(seq 1 $((width - 30))))│"
@@ -92,6 +93,17 @@ myApp() {
         ls)
             echo "Org Connections:"
             sf org list #sf command
+            ;;
+        pr)
+            echo "Connecting to Production Instance"
+            read -p "Enter Production Name to Connect to (or "x" to return to menu): " sandbox_name
+            if ! isValidChoice; then
+                echo "Invalid choice, please try again."
+            else
+                echo "^c to return to menu or continue the login process in the browser"
+                sf org web login --alias $sandbox_name
+            fi
+
             ;;
         x | exit)
             exit

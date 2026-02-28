@@ -1,0 +1,8 @@
+# Go binary (root only, not cmd/spin-kit/)
+/spin-kit
+
+# SQLite database
+*.db
+
+# OS files
+.DS_Store

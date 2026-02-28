@@ -1,53 +1,90 @@
 # SPIN Kit
 **S**andbox **P**rovisioning and **IN**spection Kit
 
+A terminal UI for managing Salesforce sandbox provisioning, built with [Bubbletea](https://github.com/charmbracelet/bubbletea).
+
 ## Features
-1. Configure regularly used sandboxes for easy access.
-2. List out local connections
-3. Refresh sandboxes (based on the configured boxes in #1 or type in a unique sandbox name with the `ref` command)
-4. Reconnect to a sandbox (if you've refreshed and need to re-authenticate for development)
 
-# Setup
-This is currently only availalbe for `bash` terminals. If I get enough requests, I may consider creating one for PowerShell for Windows. 
+1. Save and manage frequently used sandbox names per production org.
+2. Refresh sandboxes with a single keypress, or type in a custom sandbox name.
+3. List all local org connections.
+4. Reconnect to a sandbox after a refresh (re-authenticate via browser).
+5. Check real-time sandbox refresh status.
+6. Support for multiple production orgs with easy switching.
+7. All configuration stored locally in SQLite (`~/.spin-kit/spin-kit.db`).
 
-## Setup 1 (quick-start)
-1. Clone this repo to a directory of your choice. 
-2. You are Done!
-3. Open your terminal > navigate to where you cloned the repo to > run `./spin-kit.sh`
-   1. You may need to add execution permissions for this. You can run: `chmod +x ./spin-kit.sh`
-4. This will launch the `spin-kit` app in your terminal. 
+## Prerequisites
 
-## Setup 2 (longterm)
-Mint/Ubuntu setups below. The same idea exists though for whatever flavor. 
-Including it in your PATH.  Personally, I have a number of scripts that I like to run from the terminal and have a specific scripts drirectory setup that is in my path. 
-1. Clone the repo to a directory of your choice.
-2. Move the `.sh` file to your directory of choice.  I personally use a directory at `~/scripts`
-  1. navigate to the cloned repo directory
-  2. if you don't have a scripts directory yet and want one: `mkdir -p $HOME/scripts`
-  3. `sudo mv spin-kit.sh $HOME/scripts`
-  4. `chmod +x ~/scripts/myscript.sh`
-  5. at this point, I actually go in and remove the `.sh` extension for the script.
-3. need to add it to the PATH now. Below is how I did it, YMMV.
-  1. edit `.bashrc` 
-  2. I  have `export PATH=$PATH:x/y/x:a/b/c` setup at the bottom of my `.bashrc` file. Add the route to your `scripts` directory here.
-  3. `export PATH=$PATH:$HOME/scripts`
-4. at this point, you should be able to open a new terminal window and run `spin-kit` and have the utility launch.
+- [Salesforce CLI (`sf`)](https://developer.salesforce.com/tools/salesforcecli) installed and available in your PATH.
+- Go 1.22+ (only needed if building from source).
 
-# Configuration
-1. Edit the .sh file (you need to edit the one that you're going to use.  if you moved it from the repo dir to the scripts dir, you need to update the scripts dir version)
-2. Find the "CUSTOMIZE HERE" header.
-**Required**
-3. You HAVE to set the `prod_alias` variable.
-  1. this can be an Alias you have pre-configured as a connection locally. You can find this by using the `ls` command within **spin-kit**.
-  2. or this can be the username for a production user that has the rights to refresh sandboxes.
-**Optional**
-4. If you have regularly used dev sandboxes, you can add them to the `sandbox_list` variable in order to make it a bit quicker.  
+## Install
 
+### From source
 
-# Menu
-![image](https://github.com/user-attachments/assets/a13963b1-6b1c-4456-bd62-f11bf76f04de)
+```bash
+go install github.com/TylerTwoForks/spin-kit/cmd/spin-kit@latest
+```
 
-# result of the `ls` command
-![image](https://github.com/user-attachments/assets/498b0ef6-3082-4076-b316-54377ac72ac7)
+### Build locally
 
+```bash
+git clone https://github.com/TylerTwoForks/spin-kit.git
+cd spin-kit
+go build -o spin-kit ./cmd/spin-kit
+```
 
+Move the binary somewhere in your `$PATH`:
+
+```bash
+mv spin-kit ~/scripts/    # or /usr/local/bin/, etc.
+```
+
+## Usage
+
+```bash
+spin-kit
+```
+
+On first launch, you will be prompted to add a production org alias. This is the alias (or username) of your production org that has sandbox refresh rights.
+
+### Main Menu
+
+From the main menu you can:
+
+| Action | Description |
+|---|---|
+| Select a sandbox | Refresh that sandbox |
+| List Org Connections | Run `sf org list` and display results |
+| Connect to Prod Org | Login to a production org via browser |
+| Refresh Custom Sandbox | Type a sandbox name and refresh it |
+| Reconnect to Sandbox | Re-authenticate to a sandbox via browser |
+| Sandbox Refresh Status | Query in-flight sandbox refresh progress |
+| Manage Sandboxes | Add or remove saved sandbox names |
+| Settings | Add, remove, or switch production orgs |
+
+### Key Bindings
+
+| Key | Action |
+|---|---|
+| `up`/`down`, `j`/`k` | Navigate |
+| `enter` | Select / confirm |
+| `s` | Jump to settings |
+| `m` | Jump to settings |
+| `a` | Add item (in management screens) |
+| `d` | Delete item (in management screens) |
+| `esc` | Go back |
+| `q`, `ctrl+c` | Quit |
+
+## Data Storage
+
+All configuration is stored in a local SQLite database at `~/.spin-kit/spin-kit.db`. This includes:
+
+- **Production orgs** -- aliases of your production orgs, with one marked as active.
+- **Sandboxes** -- saved sandbox names, scoped to each production org.
+
+No credentials are stored. Authentication is handled by the Salesforce CLI.
+
+## Legacy Shell Script
+
+The original `spin-kit.sh` shell script is still included in the repository for reference. The Go binary is the primary tool going forward.
