@@ -251,6 +251,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.state = viewOutput
 		return m, nil
 
+	case sf.OrgOpenMsg:
+		m.loading = false
+		if msg.Err != nil {
+			m.err = msg.Err
+			m.state = viewOutput
+			return m, nil
+		}
+		m.loading = true
+		m.outputTitle = "Org Connections"
+		return m, tea.Batch(
+			sf.ListOrgs(),
+			func() tea.Msg { return m.spinner.Tick() },
+		)
+
 	case sf.OrgLogoutMsg:
 		m.loading = false
 		if msg.Err != nil {
@@ -261,11 +275,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.activeProd != nil {
 			_ = m.store.RemoveSandboxByName(msg.Alias, m.activeProd.ID)
 		}
-		m.showTable = false
-		m.viewport.SetContent(successStyle.Render(fmt.Sprintf("Logged out of %s and removed from saved aliases.", msg.Alias)))
-		m.outputTitle = "Logout: " + msg.Alias
-		m.state = viewOutput
-		return m, m.loadDataCmd()
+		m.loading = true
+		m.outputTitle = "Org Connections"
+		return m, tea.Batch(
+			sf.ListOrgs(),
+			func() tea.Msg { return m.spinner.Tick() },
+		)
 
 	case sf.WebLoginMsg:
 		m.loading = false
@@ -273,6 +288,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.err = msg.Err
 			m.state = viewOutput
 			return m, nil
+		}
+		if strings.HasPrefix(m.outputTitle, "Reconnecting to") {
+			m.loading = true
+			m.outputTitle = "Org Connections"
+			return m, tea.Batch(
+				sf.ListOrgs(),
+				func() tea.Msg { return m.spinner.Tick() },
+			)
 		}
 		m.showTable = false
 		result := successStyle.Render(fmt.Sprintf("Successfully connected to %s", msg.Alias))

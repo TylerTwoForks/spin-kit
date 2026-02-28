@@ -72,6 +72,11 @@ type WebLoginMsg struct {
 	Err   error
 }
 
+type OrgOpenMsg struct {
+	Alias string
+	Err   error
+}
+
 type OrgLogoutMsg struct {
 	Alias string
 	Err   error

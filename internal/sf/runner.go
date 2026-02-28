@@ -129,6 +129,16 @@ func WebLogin(alias string) tea.Cmd {
 	}
 }
 
+func OpenOrg(alias string) tea.Cmd {
+	return func() tea.Msg {
+		_, err := runSF("org", "open", "--target-org", alias)
+		if err != nil {
+			return OrgOpenMsg{Alias: alias, Err: err}
+		}
+		return OrgOpenMsg{Alias: alias}
+	}
+}
+
 func LogoutOrg(alias string) tea.Cmd {
 	return func() tea.Msg {
 		_, err := runSF("org", "logout", "--target-org", alias, "--no-prompt")

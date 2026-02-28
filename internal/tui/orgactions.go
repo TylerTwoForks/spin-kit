@@ -11,7 +11,7 @@ import (
 )
 
 var orgActionOptions = []string{
-	"Add to spin-kit",
+	"Open",
 	"Reconnect",
 	"Refresh",
 	"Logout",
@@ -63,17 +63,15 @@ func (m model) handleSelectedOrgAction() (model, tea.Cmd) {
 
 	switch m.mgmtCursor {
 	case 0:
-		if m.activeProd == nil {
-			m.err = fmt.Errorf("no active production org configured")
-			return m, nil
-		}
-		if err := m.store.AddSandbox(alias, m.activeProd.ID); err != nil {
-			m.err = fmt.Errorf("add sandbox: %w", err)
-			return m, nil
-		}
-		m.statusMsg = fmt.Sprintf("Added %q to saved sandboxes for %s.", alias, m.activeProd.Alias)
+		m.loading = true
+		m.outputTitle = "Opening " + alias
+		m.state = viewOutput
+		m.statusMsg = ""
 		m.err = nil
-		return m, m.loadDataCmd()
+		return m, tea.Batch(
+			sf.OpenOrg(alias),
+			func() tea.Msg { return m.spinner.Tick() },
+		)
 
 	case 1:
 		m.loading = true
@@ -128,10 +126,10 @@ func renderOrgActions(m model) string {
 	}
 
 	if m.activeProd != nil {
-		b.WriteString(dimStyle.Render("Active prod for refresh/add: "))
+		b.WriteString(dimStyle.Render("Active prod: "))
 		b.WriteString(activeOrgStyle.Render(m.activeProd.Alias))
 	} else {
-		b.WriteString(errorStyle.Render("No active production org configured for add/refresh."))
+		b.WriteString(errorStyle.Render("No active production org configured."))
 	}
 	b.WriteString("\n\n")
 
